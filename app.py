@@ -6,6 +6,7 @@ import html
 import json
 from pathlib import Path
 
+import altair as alt
 import joblib
 import numpy as np
 import pandas as pd
@@ -14,6 +15,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
 MODELS_DIR = ROOT / "models"
+DATASET_PATH = ROOT / "dataset" / "Crop_recommendation.csv"
 FEATURES = ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
 FEATURE_LABELS = {
     "N": "Nitrogen",
@@ -32,6 +34,12 @@ CROP_ICONS = {
     "orange": "OR", "papaya": "PA", "pigeonpeas": "PP", "pomegranate": "PG",
     "rice": "RI", "watermelon": "WM",
 }
+CHART_COLORS = [
+    "#7ee787", "#c8f169", "#f0c75e", "#8bbdff", "#bc8cff", "#ff7b72",
+    "#ffa657", "#56d4dd", "#d2a8ff", "#79c0ff", "#a5d6ff", "#f2cc60",
+    "#aff5b4", "#db61a2", "#ff9bce", "#39c5cf", "#d29922", "#58a6ff",
+    "#3fb950", "#e3b341", "#f85149", "#8957e5",
+]
 
 
 st.set_page_config(
@@ -324,6 +332,45 @@ def load_artifacts() -> tuple[object, object, object, dict, dict, dict]:
     )
 
 
+@st.cache_data(show_spinner=False)
+def load_dataset() -> pd.DataFrame:
+    """Load and validate the compact dataset used by the EDA workspace."""
+    if not DATASET_PATH.exists():
+        raise FileNotFoundError(f"Missing dataset: {DATASET_PATH.name}")
+    frame = pd.read_csv(DATASET_PATH)
+    expected = [*FEATURES, "label"]
+    missing = [column for column in expected if column not in frame.columns]
+    if missing:
+        raise ValueError(f"Dataset is missing columns: {', '.join(missing)}")
+    frame["Crop"] = frame["label"].str.replace("beans", " beans").str.title()
+    return frame
+
+
+def style_chart(chart: alt.Chart, height: int = 340) -> alt.Chart:
+    """Apply the dashboard's dark visual language to an Altair chart."""
+    return (
+        chart.properties(height=height)
+        .configure_view(strokeOpacity=0)
+        .configure_axis(
+            gridColor="#223027",
+            gridOpacity=.7,
+            domainColor="#34483a",
+            tickColor="#34483a",
+            labelColor="#8fa398",
+            titleColor="#c5d2c8",
+            labelFont="DM Sans",
+            titleFont="DM Sans",
+        )
+        .configure_legend(
+            labelColor="#9caf9f",
+            titleColor="#d5e1d8",
+            labelFont="DM Sans",
+            titleFont="DM Sans",
+            orient="bottom",
+        )
+    )
+
+
 def predict_crops(values: list[float], scaler: object, encoder: object, model: object) -> pd.DataFrame:
     """Return the five most likely crops in descending order."""
     feature_array = np.asarray([values], dtype=float)
@@ -496,7 +543,7 @@ if page == "Recommend":
             with climate_cols[1]:
                 humidity = st.number_input("Humidity (%)", 0.0, 100.0, 82.0, 1.0)
                 soil_ph = st.number_input("Soil pH", 0.0, 14.0, 6.5, .1)
-            submitted = st.form_submit_button("Run crop analysis", type="primary", use_container_width=True)
+            submitted = st.form_submit_button("Run crop analysis", type="primary", width="stretch")
 
         if submitted:
             values = [nitrogen, phosphorus, potassium, temperature, humidity, soil_ph, rainfall]
@@ -577,7 +624,7 @@ elif page == "Model performance":
     st.dataframe(
         display.style.format({column: "{:.2%}" for column in display.columns if column != "Model"}),
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     chart_col, importance_col = st.columns(2, gap="large")
     with chart_col:
@@ -590,13 +637,14 @@ elif page == "Model performance":
     st.markdown('<div class="notice">Feature importance measures predictive reliance, not a causal effect on crop growth or yield.</div>', unsafe_allow_html=True)
 
 else:
+    dataset = load_dataset()
     render_topline("Data explorer")
     render_hero(
         "Dataset observatory / DS-02",
         "See the signals",
         "behind the model.",
         "Explore distributions, descriptive statistics, and relationships across every soil and climate feature used for inference.",
-        ["7 dimensions", "20-bin histograms", "Summary statistics", "Correlation matrix"],
+        ["7 dimensions", "Interactive distributions", "Crop comparisons", "Relationship maps"],
     )
     metric_cards(
         [
@@ -606,31 +654,188 @@ else:
             ("Classes", str(len(eda["class_distribution"])), "balanced labels", "#8bbdff"),
         ]
     )
-    section_heading("Feature distribution", "Select a signal to inspect its frequency across the training dataset.")
-    feature = st.selectbox("Feature", FEATURES, format_func=lambda value: FEATURE_LABELS[value])
-    histogram = eda["histograms"][feature]
-    edges = histogram["bin_edges"]
-    histogram_frame = pd.DataFrame(
-        {
-            "Range midpoint": [(edges[i] + edges[i + 1]) / 2 for i in range(len(edges) - 1)],
-            "Samples": histogram["counts"],
-        }
-    ).set_index("Range midpoint")
-    st.bar_chart(histogram_frame, color="#7ee787", height=360)
+    section_heading("Feature distribution", "Inspect the shape, spread, and crop-level variation of any model input.")
+    feature = st.selectbox(
+        "Feature to profile",
+        FEATURES,
+        format_func=lambda value: FEATURE_LABELS[value],
+        key="distribution_feature",
+    )
+    feature_stats = eda["statistics"][feature]
+    metric_cards(
+        [
+            ("Mean", f"{feature_stats['mean']:.2f}", FEATURE_LABELS[feature], "#7ee787"),
+            ("Median", f"{feature_stats['median']:.2f}", "50th percentile", "#c8f169"),
+            ("Std. deviation", f"{feature_stats['std']:.2f}", "dataset spread", "#f0c75e"),
+            ("Observed range", f"{feature_stats['min']:.1f}–{feature_stats['max']:.1f}", "minimum to maximum", "#8bbdff"),
+        ]
+    )
 
-    stat_col, corr_col = st.columns([.84, 1.16], gap="large")
+    distribution_chart = (
+        alt.Chart(dataset)
+        .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4, opacity=.9)
+        .encode(
+            x=alt.X(
+                f"{feature}:Q",
+                bin=alt.Bin(maxbins=24),
+                title=FEATURE_LABELS[feature],
+            ),
+            y=alt.Y("count():Q", title="Records"),
+            color=alt.Color(
+                "count():Q",
+                title="Density",
+                scale=alt.Scale(range=["#173622", "#7ee787", "#c8f169", "#f0c75e"]),
+                legend=None,
+            ),
+            tooltip=[
+                alt.Tooltip(f"{feature}:Q", bin=alt.Bin(maxbins=24), title=FEATURE_LABELS[feature]),
+                alt.Tooltip("count():Q", title="Records"),
+            ],
+        )
+    )
+    st.altair_chart(style_chart(distribution_chart, 350), width="stretch")
+
+    section_heading("Crop-wise spread", "Compare the full value range and median for every crop class.")
+    box_chart = (
+        alt.Chart(dataset)
+        .mark_boxplot(size=13, extent="min-max", median={"color": "#edf5ef", "strokeWidth": 1.5})
+        .encode(
+            x=alt.X(f"{feature}:Q", title=FEATURE_LABELS[feature]),
+            y=alt.Y("Crop:N", title=None, sort=alt.EncodingSortField(field=feature, op="median")),
+            color=alt.Color(
+                "Crop:N",
+                scale=alt.Scale(range=CHART_COLORS),
+                legend=None,
+            ),
+            tooltip=[
+                alt.Tooltip("Crop:N"),
+                alt.Tooltip(f"min({feature}):Q", title="Minimum", format=".2f"),
+                alt.Tooltip(f"median({feature}):Q", title="Median", format=".2f"),
+                alt.Tooltip(f"max({feature}):Q", title="Maximum", format=".2f"),
+            ],
+        )
+    )
+    st.altair_chart(style_chart(box_chart, 540), width="stretch")
+
+    section_heading("Relationship explorer", "Plot any two inputs and color the observations by crop.")
+    relation_controls = st.columns([1, 1, 2])
+    with relation_controls[0]:
+        x_feature = st.selectbox(
+            "Horizontal axis",
+            FEATURES,
+            index=FEATURES.index("rainfall"),
+            format_func=lambda value: FEATURE_LABELS[value],
+        )
+    with relation_controls[1]:
+        y_feature = st.selectbox(
+            "Vertical axis",
+            FEATURES,
+            index=FEATURES.index("humidity"),
+            format_func=lambda value: FEATURE_LABELS[value],
+        )
+    crops = sorted(dataset["Crop"].unique())
+    default_crops = ["Rice", "Maize", "Cotton", "Coffee", "Banana", "Apple"]
+    with relation_controls[2]:
+        selected_crops = st.multiselect(
+            "Crop classes (up to 8)",
+            crops,
+            default=default_crops,
+            max_selections=8,
+        )
+    scatter_data = dataset[dataset["Crop"].isin(selected_crops)]
+    if selected_crops:
+        scatter_chart = (
+            alt.Chart(scatter_data)
+            .mark_circle(size=66, opacity=.7, stroke="#080d0a", strokeWidth=.5)
+            .encode(
+                x=alt.X(f"{x_feature}:Q", title=FEATURE_LABELS[x_feature], scale=alt.Scale(zero=False)),
+                y=alt.Y(f"{y_feature}:Q", title=FEATURE_LABELS[y_feature], scale=alt.Scale(zero=False)),
+                color=alt.Color(
+                    "Crop:N",
+                    scale=alt.Scale(domain=selected_crops, range=CHART_COLORS[:len(selected_crops)]),
+                    title="Crop",
+                ),
+                tooltip=[
+                    alt.Tooltip("Crop:N"),
+                    alt.Tooltip(f"{x_feature}:Q", title=FEATURE_LABELS[x_feature], format=".2f"),
+                    alt.Tooltip(f"{y_feature}:Q", title=FEATURE_LABELS[y_feature], format=".2f"),
+                ],
+            )
+        )
+        st.altair_chart(style_chart(scatter_chart, 440), width="stretch")
+    else:
+        st.info("Select at least one crop class to draw the relationship map.")
+
+    section_heading("Crop signature heatmap", "Normalized crop averages reveal unusually high and low requirements at a glance.")
+    crop_means = dataset.groupby("Crop", as_index=True)[FEATURES].mean()
+    crop_profiles = (crop_means - crop_means.mean()) / crop_means.std(ddof=0)
+    profile_long = (
+        crop_profiles.rename(columns=FEATURE_LABELS)
+        .reset_index()
+        .melt(id_vars="Crop", var_name="Feature", value_name="Relative level")
+    )
+    profile_base = alt.Chart(profile_long).encode(
+        x=alt.X("Feature:N", title=None, sort=list(FEATURE_LABELS.values())),
+        y=alt.Y("Crop:N", title=None),
+    )
+    profile_heat = profile_base.mark_rect(cornerRadius=2).encode(
+        color=alt.Color(
+            "Relative level:Q",
+            scale=alt.Scale(domain=[-2.2, 0, 2.2], range=["#4f7cff", "#18251c", "#f0c75e"]),
+            title="Relative level",
+        ),
+        tooltip=[
+            alt.Tooltip("Crop:N"),
+            alt.Tooltip("Feature:N"),
+            alt.Tooltip("Relative level:Q", format="+.2f"),
+        ],
+    )
+    profile_text = profile_base.mark_text(fontSize=9).encode(
+        text=alt.Text("Relative level:Q", format="+.1f"),
+        color=alt.condition("abs(datum['Relative level']) > 1.15", alt.value("#071109"), alt.value("#c8d6cb")),
+    )
+    st.altair_chart(style_chart(profile_heat + profile_text, 560), width="stretch")
+    st.caption("Values are z-scores across crop averages: blue is below the dataset norm, amber is above it.")
+
+    stat_col, corr_col = st.columns([.78, 1.22], gap="large")
     with stat_col:
         section_heading("Feature summary", "Central tendency and spread for each signal.")
         summary = pd.DataFrame(eda["statistics"]).T
+        summary.index = [FEATURE_LABELS.get(value, value) for value in summary.index]
         summary.index.name = "Feature"
-        st.dataframe(summary.style.format("{:.2f}"), use_container_width=True)
+        st.dataframe(summary.style.format("{:.2f}"), width="stretch", height=326)
     with corr_col:
-        section_heading("Correlation matrix", "Pairwise linear relationships between inputs.")
-        correlation = eda["correlation_matrix"]
-        correlation_frame = pd.DataFrame(
-            correlation["values"], index=correlation["columns"], columns=correlation["columns"]
+        section_heading("Correlation heatmap", "Green indicates positive relationships; coral indicates negative ones.")
+        correlation_frame = dataset[FEATURES].corr()
+        correlation_long = (
+            correlation_frame.rename(index=FEATURE_LABELS, columns=FEATURE_LABELS)
+            .rename_axis("Feature A")
+            .reset_index()
+            .melt(id_vars="Feature A", var_name="Feature B", value_name="Correlation")
         )
-        st.dataframe(
-            correlation_frame.round(2),
-            use_container_width=True,
+        correlation_base = alt.Chart(correlation_long).encode(
+            x=alt.X("Feature A:N", title=None, sort=list(FEATURE_LABELS.values())),
+            y=alt.Y("Feature B:N", title=None, sort=list(FEATURE_LABELS.values())),
         )
+        correlation_heat = correlation_base.mark_rect(cornerRadius=3).encode(
+            color=alt.Color(
+                "Correlation:Q",
+                scale=alt.Scale(domain=[-1, 0, 1], range=["#ff7b72", "#18251c", "#7ee787"]),
+                title="Correlation",
+            ),
+            tooltip=[
+                alt.Tooltip("Feature A:N"),
+                alt.Tooltip("Feature B:N"),
+                alt.Tooltip("Correlation:Q", format=".2f"),
+            ],
+        )
+        correlation_text = correlation_base.mark_text(fontSize=11).encode(
+            text=alt.Text("Correlation:Q", format=".2f"),
+            color=alt.condition("abs(datum.Correlation) > .55", alt.value("#071109"), alt.value("#dbe8de")),
+        )
+        st.altair_chart(style_chart(correlation_heat + correlation_text, 326), width="stretch")
+
+    st.markdown(
+        '<div class="notice">EDA describes this dataset, not universal agronomic rules. Relationships can change across regions, seasons, and measurement practices.</div>',
+        unsafe_allow_html=True,
+    )
