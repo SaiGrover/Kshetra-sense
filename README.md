@@ -243,10 +243,7 @@ streamlit run app.py
 
 Open `http://localhost:8501`.
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 99a9e1a2a1634c0f2398b8859ba17d834061c641
 ## Retrain the models
 
 The saved models are already included, so retraining is optional.
