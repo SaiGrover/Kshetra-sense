@@ -243,17 +243,6 @@ streamlit run app.py
 
 Open `http://localhost:8501`.
 
-## Streamlit deployment
-
-The repository is ready for Streamlit Community Cloud: the entry point, dependencies, trained artifacts and theme configuration are all committed. Push the project to GitHub, choose `app.py` as the main file, select Python 3.11 and deploy.
-
-<p align="center">
-  <a href="https://share.streamlit.io/deploy">
-    <img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Deploy on Streamlit" />
-  </a>
-</p>
-
-Once the GitHub repository URL is known, this badge can be changed into a repository-specific one-click deployment link.
 
 ## Retrain the models
 
