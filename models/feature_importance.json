@@ -1,1 +1,40 @@
-{"Decision Tree": {"rainfall": 0.319636, "P": 0.225141, "humidity": 0.198386, "N": 0.144406, "K": 0.097726, "ph": 0.007416, "temperature": 0.007288}, "Random Forest": {"rainfall": 0.231928, "humidity": 0.212925, "K": 0.185096, "P": 0.150429, "N": 0.102454, "temperature": 0.066176, "ph": 0.050992}}
+{
+  "method": "permutation importance on the untouched test partition using macro F1",
+  "rows": [
+    {
+      "feature": "humidity",
+      "mean": 0.323521,
+      "std": 0.020428
+    },
+    {
+      "feature": "N",
+      "mean": 0.25335,
+      "std": 0.014349
+    },
+    {
+      "feature": "rainfall",
+      "mean": 0.185897,
+      "std": 0.013824
+    },
+    {
+      "feature": "K",
+      "mean": 0.161778,
+      "std": 0.013661
+    },
+    {
+      "feature": "P",
+      "mean": 0.116481,
+      "std": 0.015684
+    },
+    {
+      "feature": "ph",
+      "mean": 0.010149,
+      "std": 0.004046
+    },
+    {
+      "feature": "temperature",
+      "mean": 0.008191,
+      "std": 0.003332
+    }
+  ]
+}

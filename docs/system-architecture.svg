@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
   <title id="title">KshetraSense system architecture</title>
-  <desc id="desc">The user enters field data in Streamlit, preprocessing transforms it, the Random Forest ranks crops, and the interface displays results and analysis.</desc>
+  <desc id="desc">The user enters field data, guardrails detect unsupported inputs, a calibrated model ranks crops, and Streamlit explains or abstains.</desc>
   <defs>
     <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#f7fbf6"/>
@@ -33,20 +33,20 @@
       <rect width="215" height="220" rx="22" fill="#ffffff" stroke="#c5ddca"/>
       <circle cx="108" cy="55" r="28" fill="#fff2d7"/>
       <path d="M91 44H125M91 55H125M91 66H125" stroke="#b27a12" stroke-width="4" stroke-linecap="round"/>
-      <text x="108" y="112" text-anchor="middle" fill="#173e25" font-size="20" font-weight="700">Preprocessing</text>
-      <text x="108" y="143" text-anchor="middle" fill="#65786a" font-size="14">Fixed feature order</text>
-      <text x="108" y="165" text-anchor="middle" fill="#65786a" font-size="14">StandardScaler transform</text>
-      <text x="108" y="196" text-anchor="middle" fill="#8a641f" font-size="13" font-weight="700">Saved scaler.pkl</text>
+      <text x="108" y="112" text-anchor="middle" fill="#173e25" font-size="20" font-weight="700">Safety guard</text>
+      <text x="108" y="143" text-anchor="middle" fill="#65786a" font-size="14">Observed-range checks</text>
+      <text x="108" y="165" text-anchor="middle" fill="#65786a" font-size="14">Multivariate OOD distance</text>
+      <text x="108" y="196" text-anchor="middle" fill="#8a641f" font-size="13" font-weight="700">Warn or abstain</text>
     </g>
 
     <g transform="translate(635 148)">
       <rect width="215" height="220" rx="22" fill="#163d24" stroke="#163d24"/>
       <circle cx="108" cy="55" r="28" fill="#2f6d43"/>
       <path d="M108 31V78M91 42L108 54L125 42M91 68L108 56L125 68" fill="none" stroke="#d8f0dd" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="108" y="112" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="700">Random Forest</text>
-      <text x="108" y="143" text-anchor="middle" fill="#cbe3d0" font-size="14">Class probabilities</text>
-      <text x="108" y="165" text-anchor="middle" fill="#cbe3d0" font-size="14">Top-five ranking</text>
-      <text x="108" y="196" text-anchor="middle" fill="#9de0ac" font-size="13" font-weight="700">Saved best_rf.pkl</text>
+      <text x="108" y="112" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="700">Calibrated model</text>
+      <text x="108" y="143" text-anchor="middle" fill="#cbe3d0" font-size="14">Random Forest pipeline</text>
+      <text x="108" y="165" text-anchor="middle" fill="#cbe3d0" font-size="14">Temperature scaling</text>
+      <text x="108" y="196" text-anchor="middle" fill="#9de0ac" font-size="13" font-weight="700">Verified artifact bundle</text>
     </g>
 
     <g transform="translate(925 148)">
@@ -56,9 +56,9 @@
       <rect x="103" y="37" width="8" height="29" rx="3" fill="#46975d"/>
       <rect x="116" y="28" width="8" height="38" rx="3" fill="#23733e"/>
       <text x="108" y="112" text-anchor="middle" fill="#173e25" font-size="20" font-weight="700">Streamlit result</text>
-      <text x="108" y="143" text-anchor="middle" fill="#65786a" font-size="14">Best crop and confidence</text>
-      <text x="108" y="165" text-anchor="middle" fill="#65786a" font-size="14">Rankings · charts · EDA</text>
-      <text x="108" y="196" text-anchor="middle" fill="#2b7242" font-size="13" font-weight="700">One deployable app</text>
+      <text x="108" y="143" text-anchor="middle" fill="#65786a" font-size="14">Ranking or safe abstention</text>
+      <text x="108" y="165" text-anchor="middle" fill="#65786a" font-size="14">Explanations / charts / EDA</text>
+      <text x="108" y="196" text-anchor="middle" fill="#2b7242" font-size="13" font-weight="700">Transparent decision support</text>
     </g>
   </g>
 
@@ -68,5 +68,5 @@
     <path d="M856 258H913"/>
   </g>
   <rect x="286" y="416" width="628" height="55" rx="17" fill="#ffffff" stroke="#c5ddca"/>
-  <text x="600" y="449" text-anchor="middle" fill="#3d6549" font-family="Arial, Helvetica, sans-serif" font-size="15">Cached model artifacts keep reruns fast and eliminate external API dependencies</text>
+  <text x="600" y="449" text-anchor="middle" fill="#3d6549" font-family="Arial, Helvetica, sans-serif" font-size="15">Checksums, schema validation, OOD thresholds, and abstention protect every inference</text>
 </svg>

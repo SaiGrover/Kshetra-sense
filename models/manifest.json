@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "project": "Kshetra Sense",
+  "created_utc": "2026-07-28T17:54:25.268839+00:00",
+  "model_file": "champion_pipeline.pkl",
+  "encoder_file": "label_encoder.pkl",
+  "model_sha256": "662ab05c8d318c1dc29eb57ad9e10e2bda2c897491c2a46fc4188539081d884a",
+  "encoder_sha256": "7eda3936f050898c212e50cd7b00444c43250cc977415ceffe33e82ea69b5881",
+  "dataset_file": "dataset/Crop_recommendation.csv",
+  "dataset_sha256": "54a5a6e5408668e668667efc50de2fc867c1b875e0431b4f54dd331b0a109a4e",
+  "champion_model": "Random Forest",
+  "feature_order": [
+    "N",
+    "P",
+    "K",
+    "temperature",
+    "humidity",
+    "ph",
+    "rainfall"
+  ],
+  "target": "label",
+  "classes": [
+    "apple",
+    "banana",
+    "blackgram",
+    "chickpea",
+    "coconut",
+    "coffee",
+    "cotton",
+    "grapes",
+    "jute",
+    "kidneybeans",
+    "lentil",
+    "maize",
+    "mango",
+    "mothbeans",
+    "mungbean",
+    "muskmelon",
+    "orange",
+    "papaya",
+    "pigeonpeas",
+    "pomegranate",
+    "rice",
+    "watermelon"
+  ],
+  "confidence_threshold": 0.55,
+  "ood_profile_file": "ood_profile.json",
+  "crop_profiles_file": "crop_profiles.json",
+  "validation_scope": "Internal stratified holdout only; no geographic, seasonal, or prospective validation.",
+  "versions": {
+    "python": "3.12.13",
+    "scikit_learn": "1.8.0",
+    "numpy": "1.26.4",
+    "pandas": "2.2.3"
+  },
+  "test_metrics": {
+    "accuracy": 0.995455,
+    "accuracy_ci_95": [
+      0.988636,
+      1.0
+    ],
+    "balanced_accuracy": 0.995455,
+    "macro_precision": 0.995671,
+    "macro_recall": 0.995455,
+    "macro_f1": 0.995452,
+    "macro_f1_ci_95": [
+      0.988066,
+      1.0
+    ],
+    "weighted_f1": 0.995452,
+    "top_3_accuracy": 1.0,
+    "top_5_accuracy": 1.0,
+    "log_loss": 0.015656,
+    "multiclass_brier": 0.00908,
+    "expected_calibration_error": 0.004691
+  }
+}
