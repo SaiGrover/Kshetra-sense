@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/croplens-banner.svg" alt="CropLens — grow smarter with data" width="100%" />
+  <img src="docs/kshetra-sense-banner.svg" alt="KshetraSense — smarter crop choices grounded in data" width="100%" />
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
 
 ## Project overview
 
-CropLens recommends crops from seven measurements describing soil nutrients and recent environmental conditions. A user enters nitrogen, phosphorus, potassium, temperature, humidity, soil pH and rainfall. The application applies the same preprocessing used during training, runs a tuned Random Forest classifier and displays the five most likely crops with confidence scores.
+KshetraSense recommends crops from seven measurements describing soil nutrients and recent environmental conditions. A user enters nitrogen, phosphorus, potassium, temperature, humidity, soil pH and rainfall. The application applies the same preprocessing used during training, runs a tuned Random Forest classifier and displays the five most likely crops with confidence scores.
 
 The project covers the complete machine-learning lifecycle:
 
@@ -29,16 +29,16 @@ The project covers the complete machine-learning lifecycle:
 - interactive inference, model comparison and EDA in Streamlit;
 - a self-contained deployment with no database or external prediction API.
 
-> CropLens is decision-support software. It does not account for every regional, economic or agronomic factor and should complement—not replace—local expert advice.
+> KshetraSense is decision-support software. It does not account for every regional, economic or agronomic factor and should complement—not replace—local expert advice.
 
 ## Problem statement
 
-Crop selection depends on several interacting factors. Considering one measurement in isolation can lead to a poor recommendation: high rainfall may suit one crop, while the same field's nutrient profile or pH may make another crop more appropriate. CropLens frames this as a **22-class supervised classification problem**, learning the relationship between seven numeric inputs and the crop label in the included dataset.
+Crop selection depends on several interacting factors. Considering one measurement in isolation can lead to a poor recommendation: high rainfall may suit one crop, while the same field's nutrient profile or pH may make another crop more appropriate. KshetraSense frames this as a **22-class supervised classification problem**, learning the relationship between seven numeric inputs and the crop label in the included dataset.
 
 ## System architecture
 
 <p align="center">
-  <img src="docs/system-architecture.svg" alt="CropLens single-service Streamlit architecture" width="100%" />
+  <img src="docs/system-architecture.svg" alt="KshetraSense single-service Streamlit architecture" width="100%" />
 </p>
 
 The deployment is intentionally simple. Streamlit owns the form, model inference, charts and analysis pages. The trained model files are loaded from `models/` and cached once per process, so predictions do not depend on another server.
@@ -201,7 +201,7 @@ sequenceDiagram
 ## Repository structure
 
 ```text
-CropLens/
+KshetraSense/
 ├── app.py                         # Complete Streamlit application
 ├── requirements.txt              # Deployment dependencies
 ├── .streamlit/
@@ -222,7 +222,7 @@ CropLens/
 │   ├── train_models.py            # Reproducible training pipeline
 │   └── requirements.txt           # Extra training dependencies
 └── docs/
-    ├── croplens-banner.svg
+    ├── kshetra-sense-banner.svg
     └── system-architecture.svg
 ```
 
@@ -242,18 +242,6 @@ streamlit run app.py
 ```
 
 Open `http://localhost:8501`.
-
-## Streamlit deployment
-
-The repository is ready for Streamlit Community Cloud: the entry point, dependencies, trained artifacts and theme configuration are all committed. Push the project to GitHub, choose `app.py` as the main file, select Python 3.11 and deploy.
-
-<p align="center">
-  <a href="https://share.streamlit.io/deploy">
-    <img src="https://static.streamlit.io/badges/streamlit_badge_black_white.svg" alt="Deploy on Streamlit" />
-  </a>
-</p>
-
-Once the GitHub repository URL is known, this badge can be changed into a repository-specific one-click deployment link.
 
 ## Retrain the models
 
@@ -285,6 +273,10 @@ Training regenerates every `.pkl` and `.json` artifact in `models/`. Review the 
 - Measurements outside the dataset ranges are extrapolations.
 - A local agronomist and current field testing should inform real planting decisions.
 
-## License and data provenance
+## License
 
-No explicit license or upstream dataset citation is currently included in the repository. Add both before redistributing the project or dataset publicly.
+Copyright © 2026 Saanvi. All rights reserved.
+
+This is proprietary software. Copying, modification, redistribution, hosting, deployment, commercial use, and derivative works are prohibited without prior written permission. See the [LICENSE](LICENSE) file for the complete terms.
+
+Third-party libraries and any externally sourced dataset material remain subject to their respective owners' rights and license terms.
