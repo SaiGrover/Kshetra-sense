@@ -1,0 +1,1 @@
+{"Decision Tree": {"rainfall": 0.319636, "P": 0.225141, "humidity": 0.198386, "N": 0.144406, "K": 0.097726, "ph": 0.007416, "temperature": 0.007288}, "Random Forest": {"rainfall": 0.231928, "humidity": 0.212925, "K": 0.185096, "P": 0.150429, "N": 0.102454, "temperature": 0.066176, "ph": 0.050992}}
