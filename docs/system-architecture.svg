@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
-  <title id="title">CropLens system architecture</title>
+  <title id="title">KshetraSense system architecture</title>
   <desc id="desc">The user enters field data in Streamlit, preprocessing transforms it, the Random Forest ranks crops, and the interface displays results and analysis.</desc>
   <defs>
     <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
@@ -70,4 +70,3 @@
   <rect x="286" y="416" width="628" height="55" rx="17" fill="#ffffff" stroke="#c5ddca"/>
   <text x="600" y="449" text-anchor="middle" fill="#3d6549" font-family="Arial, Helvetica, sans-serif" font-size="15">Cached model artifacts keep reruns fast and eliminate external API dependencies</text>
 </svg>
-
