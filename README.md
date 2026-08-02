@@ -19,7 +19,7 @@ Kshetra Sense is a multiclass crop recommendation project built around seven mea
 
 The project is designed as transparent decision support rather than an agronomic authority. Alongside the recommendation UI, it exposes exploratory analysis, model-selection evidence, calibration quality, labelled confusion data, per-crop metrics, permutation importance, local sensitivity, artifact diagnostics, and a workflow for evaluating genuinely external labelled data.
 
-> The model does not estimate yield, profit, disease risk, planting date, or causal treatment effects. It has not yet been validated prospectively across farms, regions, or seasons.
+> The model does not estimate yield, profit, disease risk, planting date, or causal treatment effects. It has not yet been validated prospectively across farms, regions or seasons.
 
 ## System architecture
 
